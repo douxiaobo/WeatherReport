@@ -1,5 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
-namespace WeatherReportWithCShapeConsole
+namespace CShapeConsole
 {
     class Program
     {
