@@ -6,6 +6,9 @@ use std::fs::File;
 use std::io::{self,BufRead};
 // use std::path::{self, Path};
 
+use std::collections::HashMap;
+
+
 // 定义一个函数 read_lines，参数为一个文件名，返回一个 io::Result<io::Lines<io::BufReader<File>>>，这是一个读取器，用于逐行读取文件内容。
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
 where P: AsRef<std::path::Path>, {
@@ -49,11 +52,11 @@ fn type_input(input_show:String,vector:Vec<String>) -> String{
 
         if vector.contains(&text.trim().to_string()){
             result=text.trim().to_string();   //返回移除前导和尾随空格的字符串切处
-            if input_show.contains("省份"){
-                println!("找到了省份：{}",result);
-            } else {
-                println!("找到了城市：{}",result);
-            }
+            // if input_show.contains("省份"){
+            //     println!("找到了省份：{}",result);
+            // } else {
+            //     println!("找到了城市：{}",result);
+            // }
             
             break;
         } else {
@@ -67,7 +70,12 @@ fn type_input(input_show:String,vector:Vec<String>) -> String{
     result
 }
 
-fn main() {
+async fn get(url:String) -> Result<HashMap<String, String>, reqwest::Error>{
+    Ok(reqwest::get(url).await?.json::<HashMap<String, String>>().await?)
+}
+
+#[tokio::main]
+async fn main() {
 
     let mut vector_province:Vec<String>=Vec::new();
     let mut vector_city:Vec<String>=Vec::new();
@@ -89,4 +97,11 @@ fn main() {
     city=type_input("请输入城市：".to_owned(),vector_city);
     
     println!("省份：{0}，城市：{1}。",province,city);
+
+    let url=format!("https://wis.qq.com/weather/common?source=pc&city={}&province={}&weather_type=observe",city,province);
+
+    if let Ok(resp)=get(url).await{
+        println!("{:#?}",resp);
+    }
+
 }
