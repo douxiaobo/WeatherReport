@@ -10,7 +10,7 @@ use std::io::{self,BufRead};
 
 // use reqwest::Client;  
 // use serde::Deserialize;  
-use std::error::Error; 
+// use std::error::Error; 
 
 
 
@@ -76,7 +76,7 @@ fn type_input(input_show:String,vector:Vec<String>) -> String{
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut vector_province:Vec<String>=Vec::new();
     let mut vector_city:Vec<String>=Vec::new();
@@ -101,10 +101,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let url=format!("https://wis.qq.com/weather/common?source=pc&city={}&province={}&weather_type=observe",city,province);
 
-    let body=reqwest::get(url).await?.text().await?;
+    let client = reqwest::Client::builder().build()?;
 
-    println!("body = {}", body);
+    let request = client.request(reqwest::Method::GET, url);
+
+    let response = request.send().await?;
+    let body = response.text().await?;
+
+    println!("{}", body);
 
     Ok(())
 
 }
+
+//{"data":{"observe":{"degree":"15","humidity":"20","precipitation":"0","pressure":"1012","update_time":"202403111650","weather":"多云","weather_bg_pag":"","weather_code":"01","weather_color":null,"weather_first":"","weather_pag":"","weather_short":"多云","weather_url":"","wind_direction":"8","wind_direction_name":"北风","wind_power":"5-6"}},"message":"OK","status":200}
