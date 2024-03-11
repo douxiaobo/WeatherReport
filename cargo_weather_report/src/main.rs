@@ -6,7 +6,12 @@ use std::fs::File;
 use std::io::{self,BufRead};
 // use std::path::{self, Path};
 
-use std::collections::HashMap;
+// use std::collections::HashMap;
+
+// use reqwest::Client;  
+// use serde::Deserialize;  
+use std::error::Error; 
+
 
 
 // 定义一个函数 read_lines，参数为一个文件名，返回一个 io::Result<io::Lines<io::BufReader<File>>>，这是一个读取器，用于逐行读取文件内容。
@@ -70,12 +75,8 @@ fn type_input(input_show:String,vector:Vec<String>) -> String{
     result
 }
 
-async fn get(url:String) -> Result<HashMap<String, String>, reqwest::Error>{
-    Ok(reqwest::get(url).await?.json::<HashMap<String, String>>().await?)
-}
-
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn Error>> {
 
     let mut vector_province:Vec<String>=Vec::new();
     let mut vector_city:Vec<String>=Vec::new();
@@ -100,8 +101,10 @@ async fn main() {
 
     let url=format!("https://wis.qq.com/weather/common?source=pc&city={}&province={}&weather_type=observe",city,province);
 
-    if let Ok(resp)=get(url).await{
-        println!("{:#?}",resp);
-    }
+    let body=reqwest::get(url).await?.text().await?;
+
+    println!("body = {}", body);
+
+    Ok(())
 
 }
