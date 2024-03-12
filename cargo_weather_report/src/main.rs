@@ -1,4 +1,5 @@
 #![allow(unused_assignments)]
+#[warn(unused_variables)]
 
 use std::io::Write;
 // use std::io::prelude::*;
@@ -12,6 +13,44 @@ use std::io::{self,BufRead};
 // use serde::Deserialize;  
 // use std::error::Error; 
 
+use serde::{
+    Serialize,Deserialize
+};
+
+// extern crate serde_derive;
+
+
+#[derive(Serialize, Deserialize)]
+pub struct WeatherReport {
+    data: Data,
+    message: String,
+    status: i64,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Data {
+    observe: Observe,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Observe {
+    degree: String,
+    humidity: String,
+    precipitation: String,
+    pressure: String,
+    update_time: String,
+    weather: String,
+    weather_bg_pag: String,
+    weather_code: String,
+    weather_color: Option<serde_json::Value>,
+    weather_first: String,
+    weather_pag: String,
+    weather_short: String,
+    weather_url: String,
+    wind_direction: String,
+    wind_direction_name: String,
+    wind_power: String,
+}
 
 
 // 定义一个函数 read_lines，参数为一个文件名，返回一个 io::Result<io::Lines<io::BufReader<File>>>，这是一个读取器，用于逐行读取文件内容。
@@ -97,7 +136,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     city=type_input("请输入城市：".to_owned(),vector_city);
     
-    println!("省份：{0}，城市：{1}。",province,city);
+    // println!("省份：{0}，城市：{1}。",province,city);
 
     let url=format!("https://wis.qq.com/weather/common?source=pc&city={}&province={}&weather_type=observe",city,province);
 
@@ -108,10 +147,40 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let response = request.send().await?;
     let body = response.text().await?;
 
-    println!("{}", body);
+    // println!("{}", body);
+
+    let model:WeatherReport=serde_json::from_str(&body).unwrap();
+    
+    println!("{}{}的天气是：{}",province,city,model.data.observe.weather);
+    println!("{}{}的温度是：{}",province,city,model.data.observe.degree);
 
     Ok(())
 
 }
 
-//{"data":{"observe":{"degree":"15","humidity":"20","precipitation":"0","pressure":"1012","update_time":"202403111650","weather":"多云","weather_bg_pag":"","weather_code":"01","weather_color":null,"weather_first":"","weather_pag":"","weather_short":"多云","weather_url":"","wind_direction":"8","wind_direction_name":"北风","wind_power":"5-6"}},"message":"OK","status":200}
+// {
+//     "data":
+//     {
+//         "observe":
+//         {
+//             "degree":"15",
+//             "humidity":"20",
+//             "precipitation":"0",
+//             "pressure":"1012",
+//             "update_time":"202403111650",
+//             "weather":"多云",
+//             "weather_bg_pag":"",
+//             "weather_code":"01",
+//             "weather_color":null,
+//             "weather_first":"",
+//             "weather_pag":"",
+//             "weather_short":"多云",
+//             "weather_url":"",
+//             "wind_direction":"8",
+//             "wind_direction_name":"北风",
+//             "wind_power":"5-6"
+//         }
+//     },
+//     "message":"OK",
+//     "status":200
+// }
