@@ -1,10 +1,13 @@
 #[macro_use] extern crate rocket;
 
-use rocket::http::RawStr;
+
 
 #[get("/<province>/<city>")]
 fn weather(province: String, city: String) -> String {
-    format!("Weather for {} in {}", province, city)
+    let mut text = format!("Hello, {}, {}\n", province, city);
+    text += &format!("Weather for {} in {}", province, city);
+
+    text
 }
 
 #[launch]
